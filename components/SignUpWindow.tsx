@@ -11,10 +11,19 @@ export default function SignUpWindow() {
     email: "",
     password: "",
     confirmPassword: "",
+    username: "",
   })
 
   const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (
+      !signUpFields.email ||
+      !signUpFields.password ||
+      !signUpFields.username
+    ) {
+      alert("Please fill in all fields")
+      return
+    }
     if (signUpFields.password !== signUpFields.confirmPassword) {
       alert("Passwords do not match")
       return
@@ -28,10 +37,26 @@ export default function SignUpWindow() {
       console.error("Error in handleSignUp in SignupWindow.tsx:", error.message)
       return
     } else {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (session) {
+        const { error: insertError } = await supabase.from("users").insert({
+          uid: session.user.id,
+          email: session.user.email,
+          username: signUpFields.username,
+        })
+
+        if (insertError) {
+          console.error("Error creating user profile:", insertError.message)
+          return
+        }
+      }
       setSignUpFields({
         email: "",
         password: "",
         confirmPassword: "",
+        username: "",
       })
     }
   }
@@ -52,7 +77,20 @@ export default function SignUpWindow() {
               type="text"
             />
           </div>
-
+          <div className="">
+            <p>Username</p>
+            <Input
+              value={signUpFields.username}
+              onChange={(e) =>
+                setSignUpFields((prev) => ({
+                  ...prev,
+                  username: e.target.value,
+                }))
+              }
+              placeholder="Username"
+              type="text"
+            />
+          </div>
           <div className="">
             <p>Password</p>
             <Input
