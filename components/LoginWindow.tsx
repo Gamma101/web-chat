@@ -7,7 +7,7 @@ import { FaGithub } from "react-icons/fa"
 
 export default function LoginWindow() {
   return (
-    <div className="flex flex-col gap-5 dark:bg-neutral-900 bg-secondary p-10 rounded-lg">
+    <div className="flex flex-col gap-5 dark:bg-neutral-900 bg-secondary p-10 rounded-lg min-w-[400px]">
       <h1 className="text-2xl text-primary font-bold">Login</h1>
       <div className="flex flex-col gap-5">
         <div className="">
