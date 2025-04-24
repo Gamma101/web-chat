@@ -2,6 +2,8 @@ import React from "react"
 import { Button } from "./ui/button"
 import Link from "next/link"
 import { Input } from "./ui/input"
+import { FcGoogle } from "react-icons/fc"
+import { FaGithub } from "react-icons/fa"
 
 export default function LoginWindow() {
   return (
@@ -21,11 +23,28 @@ export default function LoginWindow() {
       </div>
 
       <p>
-        Already have an account?{" "}
+        Don&apos;t have an account yet?{" "}
         <Link className="text-primary" href="/auth?authType=signup" replace>
-          Login
+          Sign Up
         </Link>
       </p>
+
+      <div className="flex flex-col gap-3">
+        <Button
+          className="dark:bg-secondary bg-white text-black dark:text-white cursor-pointer"
+          variant={"secondary"}
+        >
+          <FaGithub className="w-8 h-8" />
+          <p>sign Up with Github</p>
+        </Button>
+        <Button
+          className="dark:bg-secondary bg-white text-black dark:text-white cursor-pointer"
+          variant={"secondary"}
+        >
+          <FcGoogle className="w-8 h-8" />
+          <p>sign Up with Google</p>
+        </Button>
+      </div>
     </div>
   )
 }
