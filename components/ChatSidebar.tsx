@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react"
 import { Avatar, AvatarFallback } from "../components/ui/avatar"
 import Link from "next/link"
 import { Button } from "./ui/button"
-import { Settings } from "lucide-react"
+import { Settings, LogOut } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
 import { useTheme } from "next-themes"
+import { useRouter } from "next/navigation"
 
 interface User {
   id: string
@@ -23,8 +24,9 @@ interface User {
 }
 
 export default function ChatSidebar({ session }: { session: Session | null }) {
-  const [users, setUsers] = useState<User[]>([])
   const { setTheme } = useTheme()
+  const router = useRouter()
+  const [users, setUsers] = useState<User[]>([])
 
   const fetchUsers = async () => {
     if (!session?.user?.id) return
@@ -46,7 +48,6 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
 
   useEffect(() => {
     fetchUsers()
-    console.log("hi")
     // Subscribe to realtime changes
     const channel = supabase
       .channel("users")
@@ -63,6 +64,11 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
       channel.unsubscribe()
     }
   }, [session])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push("/auth?mode=login")
+  }
 
   return (
     <div className="w-[300px] h-screen border-r dark:border-neutral-800 p-4 flex flex-col">
@@ -90,10 +96,10 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
         ))}
       </div>
 
-      <div className="pt-4 border-t dark:border-neutral-800">
+      <div className="pt-4 border-t dark:border-neutral-800 flex gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start gap-2">
+            <Button variant="ghost" className="flex-1 justify-start gap-2">
               <Settings className="h-5 w-5" />
               Settings
             </Button>
@@ -110,6 +116,9 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Button variant="ghost" className="gap-2" onClick={handleSignOut}>
+          <LogOut className="h-5 w-5" />
+        </Button>
       </div>
     </div>
   )

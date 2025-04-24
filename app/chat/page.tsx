@@ -1,12 +1,16 @@
 "use client"
 
+import Chat from "@/components/Chat"
 import ChatSidebar from "@/components/ChatSidebar"
 import { supabase } from "@/lib/supabase-client"
 import { Session } from "@supabase/supabase-js"
+import { useSearchParams } from "next/navigation"
 import React, { useEffect } from "react"
 
 export default function ChatPage() {
   const [session, setSession] = React.useState<Session | null>(null)
+  const searchParams = useSearchParams()
+  const recieverId = searchParams.get("user")
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -27,7 +31,13 @@ export default function ChatPage() {
       <div className="">
         <ChatSidebar session={session} />
       </div>
-      <div className=""></div>
+      <div className="w-full">
+        {session && recieverId ? (
+          <Chat senderId={session?.user.id} recieverId={recieverId} />
+        ) : (
+          ""
+        )}
+      </div>
     </div>
   )
 }
