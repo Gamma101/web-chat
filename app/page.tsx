@@ -1,5 +1,4 @@
 import Header from "@/components/Header"
-import SwitchTheme from "@/components/SwitchTheme"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import React from "react"
