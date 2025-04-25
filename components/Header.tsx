@@ -3,7 +3,6 @@ import React from "react"
 import { Button } from "./ui/button"
 import SwitchTheme from "./SwitchTheme"
 import Link from "next/link"
-import { supabase } from "@/lib/supabase-client"
 
 export default function Header() {
   return (
@@ -19,15 +18,6 @@ export default function Header() {
           <Link href="/auth?authType=signup">
             <Button variant={"default"}>Sign Up</Button>
           </Link>
-          <Button
-            onClick={async () => {
-              await supabase.auth.signOut()
-              console.log("logged out")
-            }}
-            variant={"destructive"}
-          >
-            Log Out
-          </Button>
 
           <SwitchTheme />
         </div>

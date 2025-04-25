@@ -1,13 +1,29 @@
-import { createClient } from "@supabase/supabase-js"
+import { type GetServerSidePropsContext } from "next"
+import { createServerClient, serializeCookieHeader } from "@supabase/ssr"
 
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL as string
-const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+export function createClient({ req, res }: GetServerSidePropsContext) {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return Object.keys(req.cookies).map((name) => ({
+            name,
+            value: req.cookies[name] || "",
+          }))
+        },
+        setAll(cookiesToSet) {
+          res.setHeader(
+            "Set-Cookie",
+            cookiesToSet.map(({ name, value, options }) =>
+              serializeCookieHeader(name, value, options)
+            )
+          )
+        },
+      },
+    }
+  )
 
-const supabase = createClient(url, key, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-})
-// Access auth admin api
-export const adminAuthClient = supabase.auth.admin
+  return supabase
+}
