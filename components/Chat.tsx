@@ -152,6 +152,24 @@ export default function Chat({
     scrollToBottom()
   }, [messages])
 
+  const handleEditMessage = (messageId: number, currentText: string) => {
+    setEditingMessageId(messageId)
+    setEditingMessageText(currentText)
+  }
+
+  const handleSaveEdit = async (newText: string) => {
+    if (editingMessageId && newText.trim()) {
+      await editMessage(editingMessageId, newText)
+      setEditingMessageId(null)
+      setEditingMessageText("")
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditingMessageId(null)
+    setEditingMessageText("")
+  }
+
   return (
     <div className="flex flex-col h-screen w-full bg-background">
       {/* Chat header */}
@@ -192,28 +210,44 @@ export default function Chat({
                   : "bg-secondary"
               }`}
             >
-              <p className="break-words max-w-[300px]">{msg.text}</p>
-              <div className="flex flex-row items-center justify-between gap-5">
-                <span className="text-xs opacity-70 mt-1 block">
-                  {new Date(msg.created_at).toLocaleTimeString()}
-                </span>
-                {msg.is_edited && <p className="text-sm font-medium">edited</p>}
-                {msg.sender_id === senderId && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <BsThreeDots />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <EditMessage />
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => deleteMessage(msg.id)}>
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
-              </div>
+              {editingMessageId === msg.id ? (
+                <EditMessage
+                  initialText={msg.text}
+                  onSave={handleSaveEdit}
+                  onCancel={handleCancelEdit}
+                />
+              ) : (
+                <>
+                  <p className="break-words max-w-[300px]">{msg.text}</p>
+                  <div className="flex flex-row items-center justify-between gap-5">
+                    <span className="text-xs opacity-70 mt-1 block">
+                      {new Date(msg.created_at).toLocaleTimeString()}
+                    </span>
+                    {msg.is_edited && (
+                      <p className="text-sm font-medium">edited</p>
+                    )}
+                    {msg.sender_id === senderId && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <BsThreeDots />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleEditMessage(msg.id, msg.text)}
+                          >
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => deleteMessage(msg.id)}
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         ))}

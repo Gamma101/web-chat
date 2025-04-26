@@ -30,6 +30,7 @@ export default function EditMessage({
   return (
     <div className="flex flex-col gap-2 p-2 bg-background rounded-lg">
       <Input
+        className="dark:text-primary text-black"
         value={editedText}
         onChange={(e) => setEditedText(e.target.value)}
         onKeyDown={(e) => {
@@ -39,7 +40,7 @@ export default function EditMessage({
         }}
       />
       <div className="flex gap-2">
-        <Button variant="outline" onClick={onCancel}>
+        <Button variant="outline" className="text-primary" onClick={onCancel}>
           Cancel
         </Button>
         <Button onClick={handleSave}>Save</Button>
