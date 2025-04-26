@@ -14,6 +14,9 @@ import {
 import EditMessage from "./EditMessage"
 import { Paperclip } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
+import EmojiPicker, { Theme } from "emoji-picker-react"
+import Image from "next/image"
+import { useTheme } from "next-themes"
 
 interface Message {
   id: number
@@ -47,6 +50,8 @@ export default function Chat({
   const [editingMessageText, setEditingMessageText] = useState<string>("")
   const [messageImage, setMessageImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [isEmojiPickerOpen, setIsEmohiPickerOpen] = useState<boolean>(false)
+  const theme = useTheme()
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -330,6 +335,7 @@ export default function Chat({
       </div>
 
       {/* Message input form */}
+
       <form
         onSubmit={sendMessage}
         className="border-t dark:border-neutral-800 p-4 flex items-center justify-center gap-2"
@@ -344,9 +350,30 @@ export default function Chat({
             type="file"
           />
         </label>
+        <Button
+          type="button"
+          onClick={() => setIsEmohiPickerOpen((prev) => !prev)}
+          className="text-2xl"
+          variant={"secondary"}
+        >
+          😇
+        </Button>
+        <div className="absolute left-100 bottom-20">
+          <EmojiPicker
+            lazyLoadEmojis={true}
+            open={isEmojiPickerOpen}
+            onEmojiClick={(e) =>
+              setMessage((prev) => {
+                setIsEmohiPickerOpen(false)
+                return prev + e.emoji
+              })
+            }
+            theme={theme.theme as Theme}
+          />
+        </div>
         {imagePreview && (
           <div className="relative">
-            <img
+            <Image
               src={imagePreview}
               alt="Preview"
               className="w-20 h-20 object-cover rounded-md"
@@ -366,6 +393,7 @@ export default function Chat({
           placeholder="Type a message..."
           className="flex-1"
         />
+
         <Button type="submit">Send</Button>
       </form>
     </div>
