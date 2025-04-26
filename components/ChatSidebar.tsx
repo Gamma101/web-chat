@@ -15,6 +15,8 @@ import {
 } from "./ui/dropdown-menu"
 import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
+import { Input } from "./ui/input"
+import { IoMdClose } from "react-icons/io"
 
 interface User {
   id: string
@@ -27,6 +29,8 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
   const { setTheme } = useTheme()
   const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
+  const [searchString, setSearchString] = useState<string>("")
 
   const fetchUsers = async () => {
     if (!session?.user?.id) return
@@ -45,6 +49,24 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
       setUsers(data)
     }
   }
+
+  const filterUsers = () => {
+    console.log("CHOOSING")
+    if (!searchString) {
+      setFilteredUsers(users)
+      return
+    } else {
+      const currentFilterUsers = users.filter((user) =>
+        user.username.toLowerCase().includes(searchString.toLowerCase())
+      )
+      setFilteredUsers(currentFilterUsers)
+      return
+    }
+  }
+
+  useEffect(() => {
+    filterUsers()
+  }, [searchString])
 
   useEffect(() => {
     fetchUsers()
@@ -75,8 +97,22 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
       <h2 className="text-xl font-semibold mb-4 text-center">
         <span className="text-primary">Web</span>-chat
       </h2>
+      <div className="flex flex-row items-center justify-center gap-4">
+        <Input
+          placeholder="Search for friends"
+          value={searchString}
+          onChange={(e) => setSearchString(e.target.value)}
+        />
+        <button
+          onClick={() => {
+            setSearchString("")
+          }}
+        >
+          <IoMdClose size={24} />
+        </button>
+      </div>
       <div className="space-y-2 flex-grow">
-        {users.map((user) => (
+        {filteredUsers.map((user) => (
           <Link
             href={`/chat?user=${user.uid}`}
             key={user.id}
