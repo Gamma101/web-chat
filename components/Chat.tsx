@@ -294,10 +294,7 @@ export default function Chat({
                 <>
                   <p className="break-words max-w-[300px]">{msg.text}</p>
                   {msg.image_url && (
-                    <img
-                      src={msg.image_url}
-                      className="max-w-[600px] rounded-md"
-                    />
+                    <img src={msg.image_url} className=" rounded-md" />
                   )}
                   <div className="flex flex-row items-center justify-between gap-5">
                     <span className="text-xs opacity-70 mt-1 block">
@@ -373,7 +370,7 @@ export default function Chat({
         </div>
         {imagePreview && (
           <div className="relative">
-            <Image
+            <img
               src={imagePreview}
               alt="Preview"
               className="w-20 h-20 object-cover rounded-md"

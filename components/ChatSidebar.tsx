@@ -151,29 +151,40 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
         )}
       </div>
 
-      <div className="pt-4 border-t dark:border-neutral-800 flex gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex-1 justify-start gap-2">
-              <Settings className="h-5 w-5" />
-              Settings
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => setTheme("light")}>
-              Light
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("dark")}>
-              Dark
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setTheme("system")}>
-              System
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button variant="ghost" className="gap-2" onClick={handleSignOut}>
-          <LogOut className="h-5 w-5" />
-        </Button>
+      <div className="pt-4 border-t dark:border-neutral-800 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Avatar>
+            <AvatarFallback className="text-primary">
+              {session?.user?.email?.slice(0, 2).toUpperCase() ||
+                session?.user?.user_metadata?.username
+                  ?.slice(0, 2)
+                  .toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+        <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Settings className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button variant="ghost" size="icon" onClick={handleSignOut}>
+            <LogOut className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </div>
   )
