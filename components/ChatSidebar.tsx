@@ -61,7 +61,6 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
   }
 
   const filterUsers = () => {
-    console.log("CHOOSING")
     if (!searchString) {
       setFilteredUsers(users)
       return

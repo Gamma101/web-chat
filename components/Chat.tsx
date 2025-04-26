@@ -4,6 +4,7 @@ import { Button } from "./ui/button"
 import { Input } from "./ui/input"
 import { Avatar, AvatarFallback } from "./ui/avatar"
 import { BsThreeDots } from "react-icons/bs"
+import { IoMdClose } from "react-icons/io"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import EditMessage from "./EditMessage"
+import { Paperclip } from "lucide-react"
+import { v4 as uuidv4 } from "uuid"
 
 interface Message {
   id: number
@@ -42,9 +45,28 @@ export default function Chat({
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null)
   const [editingMessageText, setEditingMessageText] = useState<string>("")
+  const [messageImage, setMessageImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0]
+      setMessageImage(file)
+      setImagePreview(URL.createObjectURL(file))
+    }
+  }
+
+  // Add this before the form return
+  const clearImagePreview = () => {
+    setImagePreview(null)
+    setMessageImage(null)
+    const fileInput = document.getElementById("file-upload") as HTMLInputElement
+    if (fileInput) {
+      fileInput.value = ""
+    }
   }
 
   const fetchReceiverInfo = async () => {
@@ -65,23 +87,52 @@ export default function Chat({
     }
   }
 
+  const uploadImage = async (image: File) => {
+    const extenstion = image.name.split(".").pop()
+    const fileName = `${Date.now()}-${uuidv4()}.${extenstion}`
+    const { error } = await supabase.storage
+      .from("images")
+      .upload(fileName, image)
+
+    if (error) {
+      console.error("Error uploading image:", error)
+      return null
+    }
+
+    // Get the public URL directly from the storage path
+    const { data } = await supabase.storage
+      .from("images")
+      .getPublicUrl(fileName)
+
+    return data.publicUrl
+  }
+
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!message.trim()) return
+    if (!message.trim() && !messageImage) return
 
-    const { error } = await supabase.from("messages").insert({
-      text: message,
-      image_url: "",
-      is_edited: false,
-      sender_id: senderId,
-      reciever_id: recieverId,
-    })
+    let imageUrl: string | null = null
+    if (messageImage) {
+      imageUrl = await uploadImage(messageImage)
+    }
+
+    const { error } = await supabase
+      .from("messages")
+      .insert({
+        text: message,
+        image_url: imageUrl || "",
+        is_edited: false,
+        sender_id: senderId,
+        reciever_id: recieverId,
+      })
+      .select()
+      .single()
 
     if (error) {
       console.error("Error while sending message:", error)
       return
     }
-
+    clearImagePreview()
     setMessage("")
   }
 
@@ -105,6 +156,24 @@ export default function Chat({
   }
 
   const deleteMessage = async (messageId: number) => {
+    const messageToDelete = messages.find((msg) => msg.id === messageId)
+
+    if (messageToDelete?.image_url) {
+      const tempUrl = messageToDelete.image_url.split("/")
+      const imageName = tempUrl.pop()
+      const folder = tempUrl.pop()
+      console.log(folder)
+      if (!imageName) return
+      console.log(decodeURI(imageName))
+      const { error } = await supabase.storage
+        .from("images")
+        .remove([`${folder}/${decodeURI(imageName)}`])
+
+      if (error) {
+        console.error("Error deleting image:", error)
+      }
+    }
+
     const { error } = await supabase
       .from("messages")
       .delete()
@@ -219,6 +288,12 @@ export default function Chat({
               ) : (
                 <>
                   <p className="break-words max-w-[300px]">{msg.text}</p>
+                  {msg.image_url && (
+                    <img
+                      src={msg.image_url}
+                      className="max-w-[600px] rounded-md"
+                    />
+                  )}
                   <div className="flex flex-row items-center justify-between gap-5">
                     <span className="text-xs opacity-70 mt-1 block">
                       {new Date(msg.created_at).toLocaleTimeString()}
@@ -257,8 +332,34 @@ export default function Chat({
       {/* Message input form */}
       <form
         onSubmit={sendMessage}
-        className="border-t dark:border-neutral-800 p-4 flex gap-2"
+        className="border-t dark:border-neutral-800 p-4 flex items-center justify-center gap-2"
       >
+        <label htmlFor="file-upload" className="cursor-pointer p-2">
+          <Paperclip className="h-5 w-5" />
+          <Input
+            className="hidden"
+            accept="image/*"
+            onChange={handleFileChange}
+            id="file-upload"
+            type="file"
+          />
+        </label>
+        {imagePreview && (
+          <div className="relative">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="w-20 h-20 object-cover rounded-md"
+            />
+            <button
+              type="button"
+              onClick={clearImagePreview}
+              className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1"
+            >
+              <IoMdClose className="h-3 w-3 text-white" />
+            </button>
+          </div>
+        )}
         <Input
           value={message}
           onChange={(e) => setMessage(e.target.value)}
