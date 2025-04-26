@@ -31,22 +31,32 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
   const [users, setUsers] = useState<User[]>([])
   const [filteredUsers, setFilteredUsers] = useState<User[]>([])
   const [searchString, setSearchString] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(true)
 
   const fetchUsers = async () => {
-    if (!session?.user?.id) return
-
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .neq("uid", session.user.id)
-
-    if (error) {
-      console.error("Error fetching users:", error)
+    if (!session?.user?.id) {
+      setIsLoading(false)
       return
     }
 
-    if (data) {
-      setUsers(data)
+    setIsLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .neq("uid", session.user.id)
+
+      if (error) {
+        console.error("Error fetching users:", error)
+        return
+      }
+
+      if (data) {
+        setUsers(data)
+        setFilteredUsers(data)
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -94,7 +104,7 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
 
   return (
     <div className="w-[300px] h-screen border-r dark:border-neutral-800 p-4 flex flex-col">
-      <h2 className="text-xl font-semibold mb-4 text-center">
+      <h2 className="text-3xl font-semibold mb-4 text-center">
         <span className="text-primary">Web</span>-chat
       </h2>
       <div className="flex flex-row items-center justify-center gap-4">
@@ -112,24 +122,34 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
         </button>
       </div>
       <div className="space-y-2 flex-grow">
-        {filteredUsers.map((user) => (
-          <Link
-            href={`/chat?user=${user.uid}`}
-            key={user.id}
-            className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/50 cursor-pointer transition-colors"
-          >
-            <Avatar>
-              <AvatarFallback className="text-primary">
-                {user.username?.slice(0, 2).toUpperCase() ||
-                  user.email?.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <p className="font-medium">{user.username || "Anonymous"}</p>
-              <p className="text-sm text-muted-foreground">{user.email}</p>
-            </div>
-          </Link>
-        ))}
+        {isLoading ? (
+          <div className="flex justify-center items-center mt-5">
+            <p>Loading users...</p>
+          </div>
+        ) : filteredUsers.length > 0 ? (
+          filteredUsers.map((user) => (
+            <Link
+              href={`/chat?user=${user.uid}`}
+              key={user.id}
+              className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/50 cursor-pointer transition-colors"
+            >
+              <Avatar>
+                <AvatarFallback className="text-primary">
+                  {user.username?.slice(0, 2).toUpperCase() ||
+                    user.email?.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-medium">{user.username || "Anonymous"}</p>
+                <p className="text-sm text-muted-foreground">{user.email}</p>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <div className="flex justify-center items-center mt-5">
+            <p>No users found</p>
+          </div>
+        )}
       </div>
 
       <div className="pt-4 border-t dark:border-neutral-800 flex gap-2">
