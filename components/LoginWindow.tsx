@@ -36,7 +36,13 @@ export default function LoginWindow() {
 
   return (
     <div className="flex flex-col gap-5 dark:bg-neutral-900 bg-secondary p-10 rounded-lg min-w-[400px]">
-      <h1 className="text-2xl text-primary font-bold">Login</h1>
+      <Link href="/">
+        <h2 className="text-4xl text-center font-bold">
+          <span className="text-primary">web</span>-chat
+        </h2>
+      </Link>
+
+      <h2 className="text-2xl text-primary font-bold">Login</h2>
       <form onSubmit={handleLogin} className="flex flex-col gap-5">
         <div className="">
           <p>Email</p>

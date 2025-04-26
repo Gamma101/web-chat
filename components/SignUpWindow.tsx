@@ -63,6 +63,11 @@ export default function SignUpWindow() {
 
   return (
     <div className="flex flex-col dark:bg-neutral-900 bg-secondary p-10 rounded-lg min-w-[400px]">
+      <Link href="/" className="mb-5">
+        <h2 className="text-4xl text-center font-bold">
+          <span className="text-primary">web</span>-chat
+        </h2>
+      </Link>
       <h1 className="text-2xl text-primary font-bold pb-5">Sign Up</h1>
       <div className="flex flex-col gap-5">
         <form className="flex flex-col gap-5" onSubmit={handleSignUp}>

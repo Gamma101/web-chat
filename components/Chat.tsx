@@ -197,18 +197,16 @@ export default function Chat({
                 <span className="text-xs opacity-70 mt-1 block">
                   {new Date(msg.created_at).toLocaleTimeString()}
                 </span>
-                {!msg.is_edited && (
-                  <p className="text-sm font-medium">edited</p>
-                )}
+                {msg.is_edited && <p className="text-sm font-medium">edited</p>}
                 {msg.sender_id === senderId && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <BsThreeDots />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {/* <DropdownMenuItem>
+                      <DropdownMenuItem>
                         <EditMessage />
-                      </DropdownMenuItem> */}
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => deleteMessage(msg.id)}>
                         Delete
                       </DropdownMenuItem>
