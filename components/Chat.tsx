@@ -18,7 +18,7 @@ import EmojiPicker, { Theme } from "emoji-picker-react"
 import { useTheme } from "next-themes"
 import { MdDelete, MdModeEditOutline } from "react-icons/md"
 import { FaReply } from "react-icons/fa"
-
+import { IoSend } from "react-icons/io5"
 interface Message {
   id: number
   created_at: string
@@ -459,7 +459,9 @@ export default function Chat({
           className="flex-1"
         />
 
-        <Button type="submit">Send</Button>
+        <Button className="" type="submit">
+          <IoSend color="black" />
+        </Button>
       </form>
     </div>
   )

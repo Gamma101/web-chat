@@ -24,6 +24,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import AvatarChange from "./AvatarChange"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface User {
   id: string
@@ -198,77 +203,116 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
         )}
       </div>
 
-      <div className="pt-4 border-t dark:border-neutral-800 flex items-center justify-between">
+      <div className="pt-4 border-t dark:border-neutral-800 flex items-center gap-3">
         <div className="flex items-center gap-2">
-          {currentUser?.avatar_url ? (
-            <img
-              src={currentUser.avatar_url}
-              width={35}
-              height={35}
-              className="bg-secondary w-[35px] h-[35px] rounded-full"
-              alt="user avatar"
-            />
-          ) : (
-            <Avatar>
-              <AvatarFallback className="text-primary">
-                {currentUser?.username?.slice(0, 2).toUpperCase() ||
-                  currentUser?.email?.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          )}
-        </div>
-        <div className="flex gap-2">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Settings</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Customize your chat experience
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="py-4">
-                <h3 className="text-sm font-medium mb-2">Theme</h3>
-                <div className="flex flex-col gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              {currentUser?.avatar_url ? (
+                <img
+                  src={currentUser.avatar_url}
+                  width={35}
+                  height={35}
+                  className="bg-secondary w-[35px] h-[35px] rounded-full cursor-pointer"
+                  alt="user avatar"
+                />
+              ) : (
+                <Avatar className="cursor-pointer">
+                  <AvatarFallback className="text-primary">
+                    {currentUser?.username?.slice(0, 2).toUpperCase() ||
+                      currentUser?.email?.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <div className="">
+                <p>
+                  Email:{" "}
+                  <span className="text-primary">{currentUser?.email}</span>
+                </p>
+                <p>
+                  Username:{" "}
+                  <span className="text-primary">{currentUser?.username}</span>
+                </p>
+                <p>Avatar:</p>
+                <img
+                  src={currentUser?.avatar_url}
+                  className="bg-secondary m-5 w-[200px] rounded-lg"
+                  alt="user avatar"
+                />
+                <div className="flex justify-between">
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        className="w-[49%] bg-secondary"
+                        variant="ghost"
+                        size="icon"
+                      >
+                        <Settings className="h-5 w-5" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Settings</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Customize your chat experience
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <div className="py-4">
+                        <h3 className="text-sm font-medium mb-2">Theme</h3>
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            variant={theme === "light" ? "default" : "outline"}
+                            className="justify-start"
+                            onClick={() => setTheme("light")}
+                          >
+                            <Sun className="h-4 w-4 mr-2" />
+                            Light
+                          </Button>
+                          <Button
+                            variant={theme === "dark" ? "default" : "outline"}
+                            className="justify-start"
+                            onClick={() => setTheme("dark")}
+                          >
+                            <Moon className="h-4 w-4 mr-2" />
+                            Dark
+                          </Button>
+                          <Button
+                            variant={theme === "system" ? "default" : "outline"}
+                            className="justify-start"
+                            onClick={() => setTheme("system")}
+                          >
+                            <Laptop className="h-4 w-4 mr-2" />
+                            System
+                          </Button>
+                          <AvatarChange
+                            setIsAvatarLoading={setIsAvatarLoading}
+                          />
+                        </div>
+                      </div>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Close</AlertDialogCancel>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                   <Button
-                    variant={theme === "light" ? "default" : "outline"}
-                    className="justify-start"
-                    onClick={() => setTheme("light")}
+                    className="w-[49%] bg-secondary"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSignOut}
                   >
-                    <Sun className="h-4 w-4 mr-2" />
-                    Light
+                    <LogOut className="h-5 w-5 text-red-400 " />
+                    <p className="text-red-400">Log Out</p>
                   </Button>
-                  <Button
-                    variant={theme === "dark" ? "default" : "outline"}
-                    className="justify-start"
-                    onClick={() => setTheme("dark")}
-                  >
-                    <Moon className="h-4 w-4 mr-2" />
-                    Dark
-                  </Button>
-                  <Button
-                    variant={theme === "system" ? "default" : "outline"}
-                    className="justify-start"
-                    onClick={() => setTheme("system")}
-                  >
-                    <Laptop className="h-4 w-4 mr-2" />
-                    System
-                  </Button>
-                  <AvatarChange setIsAvatarLoading={setIsAvatarLoading} />
                 </div>
               </div>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Close</AlertDialogCancel>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          <Button variant="ghost" size="icon" onClick={handleSignOut}>
-            <LogOut className="h-5 w-5 text-red-400" />
-          </Button>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="">
+          <p className="text-primary">{currentUser?.username}</p>
+
+          <p className="text-primary">{currentUser?.email}</p>
         </div>
       </div>
     </div>
