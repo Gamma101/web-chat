@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from "uuid"
 import EmojiPicker, { Theme } from "emoji-picker-react"
 import Image from "next/image"
 import { useTheme } from "next-themes"
+import { MdDelete, MdModeEditOutline } from "react-icons/md"
 
 interface Message {
   id: number
@@ -306,14 +307,18 @@ export default function Chat({
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
+                            className="flex items-center justify-between"
                             onClick={() => handleEditMessage(msg.id, msg.text)}
                           >
                             Edit
+                            <MdModeEditOutline />
                           </DropdownMenuItem>
                           <DropdownMenuItem
+                            className="flex flex-row items-center justify-between text-red-400"
                             onClick={() => deleteMessage(msg.id)}
                           >
                             Delete
+                            <MdDelete className="text-red-400" />
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
