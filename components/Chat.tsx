@@ -164,15 +164,11 @@ export default function Chat({
     const messageToDelete = messages.find((msg) => msg.id === messageId)
 
     if (messageToDelete?.image_url) {
-      const tempUrl = messageToDelete.image_url.split("/")
-      const imageName = tempUrl.pop()
-      const folder = tempUrl.pop()
-      console.log(folder)
-      if (!imageName) return
-      console.log(decodeURI(imageName))
+      const urlSplitted = messageToDelete.image_url.split("/")
+      const fileName = urlSplitted[urlSplitted.length - 1]
       const { error } = await supabase.storage
         .from("images")
-        .remove([`${folder}/${decodeURI(imageName)}`])
+        .remove([`${fileName}`])
 
       if (error) {
         console.error("Error deleting image:", error)

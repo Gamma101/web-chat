@@ -2,6 +2,7 @@
 
 import Chat from "@/components/Chat"
 import ChatSidebar from "@/components/ChatSidebar"
+import TestDelete from "@/components/TestDelete"
 import { supabase } from "@/lib/supabase-client"
 import { Session } from "@supabase/supabase-js"
 import { useSearchParams } from "next/navigation"
@@ -31,6 +32,7 @@ export default function ChatPage() {
       <div className="">
         <ChatSidebar session={session} />
       </div>
+      <TestDelete />
       <div className="w-full">
         {session && recieverId ? (
           <Chat senderId={session?.user.id} recieverId={recieverId} />
