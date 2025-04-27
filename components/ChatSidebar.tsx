@@ -38,7 +38,15 @@ interface User {
   avatar_url: string | null
 }
 
-export default function ChatSidebar({ session }: { session: Session | null }) {
+export default function ChatSidebar({
+  session,
+  setIsAvatarLoading,
+  isAvatarLoading,
+}: {
+  session: Session | null
+  setIsAvatarLoading: React.Dispatch<React.SetStateAction<boolean>>
+  isAvatarLoading: boolean
+}) {
   const { setTheme, theme } = useTheme()
   const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
@@ -46,7 +54,6 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
   const [searchString, setSearchString] = useState<string>("")
   const [isLoading, setIsLoading] = useState(true)
   const [currentUser, setCurrentUser] = useState<User | null>(null)
-  const [isAvatarLoading, setIsAvatarLoading] = useState(false)
 
   const fetchCurrentUser = async () => {
     if (!session?.user?.id) return
@@ -235,11 +242,23 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
                   <span className="text-primary">{currentUser?.username}</span>
                 </p>
                 <p>Avatar:</p>
-                <img
-                  src={currentUser?.avatar_url}
-                  className="bg-secondary m-5 w-[200px] rounded-lg"
-                  alt="user avatar"
-                />
+                {currentUser?.avatar_url ? (
+                  <img
+                    src={currentUser?.avatar_url}
+                    className="bg-secondary p-2 m-5 w-[200px] rounded-full"
+                    alt="user avatar"
+                    width={100}
+                    height={100}
+                  />
+                ) : (
+                  <Avatar className="w-[200px] m-5 h-[200px] text-7xl mx-auto p-2 bg-secondary/80">
+                    <AvatarFallback className="text-primary">
+                      {currentUser?.username?.slice(0, 2).toUpperCase() ||
+                        currentUser?.email?.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+
                 <div className="flex justify-between">
                   <AlertDialog>
                     <AlertDialogTrigger asChild>

@@ -44,9 +44,12 @@ export default function Chat({
 }: {
   senderId: string
   recieverId: string
+  setIsAvatarLoading: React.Dispatch<React.SetStateAction<boolean>>
+  isAvatarLoading: boolean
 }) {
   const [message, setMessage] = useState<string>("")
   const [messages, setMessages] = useState<Message[]>([])
+  const [currentUser, setCurrentUser] = useState<User | null>()
   const [receiverInfo, setReceiverInfo] = useState<User | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [editingMessageId, setEditingMessageId] = useState<number | null>(null)
@@ -56,7 +59,6 @@ export default function Chat({
   const [isEmojiPickerOpen, setIsEmohiPickerOpen] = useState<boolean>(false)
   const [replyMessage, setReplyMessage] = useState<Message | null>(null)
   const theme = useTheme()
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }
@@ -284,6 +286,31 @@ export default function Chat({
     setEditingMessageText("")
   }
 
+  const fetchCurrentUser = async () => {
+    const { data: session } = await supabase.auth.getSession()
+
+    if (!session.session) {
+      return
+    }
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("uid", session.session.user.id)
+      .single()
+
+    if (error) {
+      console.log(error)
+      return
+    }
+
+    setCurrentUser(data)
+  }
+
+  useEffect(() => {
+    fetchCurrentUser()
+  }, [])
+
   return (
     <div className="flex flex-col h-screen w-full bg-background">
       {/* Chat header */}
@@ -327,6 +354,24 @@ export default function Chat({
               msg.sender_id === senderId ? "justify-end" : "justify-start"
             }`}
           >
+            {receiverInfo?.uid !== msg.reciever_id &&
+              receiverInfo?.avatar_url && (
+                <img
+                  src={receiverInfo?.avatar_url}
+                  alt="user avatar"
+                  className="w-[35px] h-[35px] mr-2"
+                />
+              )}
+            {receiverInfo?.uid !== msg.reciever_id &&
+              !receiverInfo?.avatar_url && (
+                <Avatar className="mr-2">
+                  <AvatarFallback className="text-primary">
+                    {receiverInfo?.username?.slice(0, 2).toUpperCase() ||
+                      receiverInfo?.email?.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+
             <div
               className={`max-w-[70%] rounded-lg p-3 ${
                 msg.sender_id === senderId
@@ -354,6 +399,7 @@ export default function Chat({
                     {msg.is_edited && (
                       <p className="text-sm font-medium">edited</p>
                     )}
+
                     {msg.sender_id === senderId ? (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -385,6 +431,23 @@ export default function Chat({
                 </>
               )}
             </div>
+            {receiverInfo?.uid === msg.reciever_id &&
+              currentUser?.avatar_url && (
+                <img
+                  src={currentUser?.avatar_url}
+                  alt="user avatar"
+                  className="w-[35px] rounded-full h-[35px] ml-2"
+                />
+              )}
+            {receiverInfo?.uid === msg.reciever_id &&
+              !currentUser?.avatar_url && (
+                <Avatar className="ml-2 w-[35px] h-[35px]">
+                  <AvatarFallback className="text-primary">
+                    {currentUser?.username?.slice(0, 2).toUpperCase() ||
+                      currentUser?.email?.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              )}
           </div>
         ))}
         <div ref={messagesEndRef} />
@@ -405,8 +468,13 @@ export default function Chat({
         onSubmit={sendMessage}
         className="border-t dark:border-neutral-800 p-4 flex items-center justify-center gap-2"
       >
-        <label htmlFor="file-upload" className="cursor-pointer p-2">
-          <Paperclip className="h-5 w-5" />
+        <label htmlFor="file-upload" className="cursor-pointer">
+          <Button
+            variant={"secondary"}
+            onClick={() => document.getElementById("file-upload")?.click()}
+          >
+            <Paperclip className="h-5 w-5" />
+          </Button>
           <Input
             className="hidden"
             accept="image/*"
