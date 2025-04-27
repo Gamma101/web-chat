@@ -7,31 +7,64 @@ import { Avatar, AvatarFallback } from "../components/ui/avatar"
 import Link from "next/link"
 import { Button } from "./ui/button"
 import { Settings, LogOut } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
+
 import { useTheme } from "next-themes"
 import { useRouter } from "next/navigation"
 import { Input } from "./ui/input"
 import { IoMdClose } from "react-icons/io"
+import { Moon, Sun, Laptop } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import AvatarChange from "./AvatarChange"
 
 interface User {
   id: string
   email: string
   username: string
   uid: string
+  avatar_url: string | null
 }
 
 export default function ChatSidebar({ session }: { session: Session | null }) {
-  const { setTheme } = useTheme()
+  const { setTheme, theme } = useTheme()
   const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
   const [filteredUsers, setFilteredUsers] = useState<User[]>([])
   const [searchString, setSearchString] = useState<string>("")
   const [isLoading, setIsLoading] = useState(true)
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [isAvatarLoading, setIsAvatarLoading] = useState(false)
+
+  const fetchCurrentUser = async () => {
+    if (!session?.user?.id) return
+
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("uid", session.user.id)
+      .single()
+
+    if (error) {
+      console.error("Error fetching current user:", error)
+      return
+    }
+
+    if (data) {
+      setCurrentUser(data)
+    }
+  }
+
+  useEffect(() => {
+    fetchCurrentUser()
+  }, [session])
 
   const fetchUsers = async () => {
     if (!session?.user?.id) {
@@ -101,6 +134,10 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
     router.push("/auth?mode=login")
   }
 
+  useEffect(() => {
+    fetchCurrentUser()
+  }, [isAvatarLoading])
+
   return (
     <div className="w-[300px] h-screen border-r dark:border-neutral-800 p-4 flex flex-col">
       <h2 className="text-3xl font-semibold mb-4 text-center">
@@ -132,12 +169,22 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
               key={user.id}
               className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/50 cursor-pointer transition-colors"
             >
-              <Avatar>
-                <AvatarFallback className="text-primary">
-                  {user.username?.slice(0, 2).toUpperCase() ||
-                    user.email?.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              {user.avatar_url ? (
+                <img
+                  src={user.avatar_url as string}
+                  width={35}
+                  height={35}
+                  className="bg-secondary rounded-full"
+                  alt="user avatar"
+                />
+              ) : (
+                <Avatar>
+                  <AvatarFallback className="text-primary">
+                    {user.username?.slice(0, 2).toUpperCase() ||
+                      user.email?.slice(0, 2).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+              )}
               <div>
                 <p className="font-medium">{user.username || "Anonymous"}</p>
                 <p className="text-sm text-muted-foreground">{user.email}</p>
@@ -153,34 +200,72 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
 
       <div className="pt-4 border-t dark:border-neutral-800 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Avatar>
-            <AvatarFallback className="text-primary">
-              {session?.user?.email?.slice(0, 2).toUpperCase() ||
-                session?.user?.user_metadata?.username
-                  ?.slice(0, 2)
-                  .toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
+          {currentUser?.avatar_url ? (
+            <img
+              src={currentUser.avatar_url}
+              width={35}
+              height={35}
+              className="bg-secondary w-[35px] h-[35px] rounded-full"
+              alt="user avatar"
+            />
+          ) : (
+            <Avatar>
+              <AvatarFallback className="text-primary">
+                {currentUser?.username?.slice(0, 2).toUpperCase() ||
+                  currentUser?.email?.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+          )}
         </div>
         <div className="flex gap-2">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
               <Button variant="ghost" size="icon">
                 <Settings className="h-5 w-5" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                System
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Settings</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Customize your chat experience
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="py-4">
+                <h3 className="text-sm font-medium mb-2">Theme</h3>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    variant={theme === "light" ? "default" : "outline"}
+                    className="justify-start"
+                    onClick={() => setTheme("light")}
+                  >
+                    <Sun className="h-4 w-4 mr-2" />
+                    Light
+                  </Button>
+                  <Button
+                    variant={theme === "dark" ? "default" : "outline"}
+                    className="justify-start"
+                    onClick={() => setTheme("dark")}
+                  >
+                    <Moon className="h-4 w-4 mr-2" />
+                    Dark
+                  </Button>
+                  <Button
+                    variant={theme === "system" ? "default" : "outline"}
+                    className="justify-start"
+                    onClick={() => setTheme("system")}
+                  >
+                    <Laptop className="h-4 w-4 mr-2" />
+                    System
+                  </Button>
+                  <AvatarChange setIsAvatarLoading={setIsAvatarLoading} />
+                </div>
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Close</AlertDialogCancel>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <Button variant="ghost" size="icon" onClick={handleSignOut}>
             <LogOut className="h-5 w-5 text-red-400" />
           </Button>

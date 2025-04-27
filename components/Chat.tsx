@@ -35,6 +35,7 @@ interface User {
   email: string
   username: string
   uid: string
+  avatar_url: string | null
 }
 
 export default function Chat({
@@ -289,12 +290,22 @@ export default function Chat({
       <div className="border-b dark:border-neutral-800 p-4 flex items-center gap-3">
         {receiverInfo && (
           <>
-            <Avatar>
-              <AvatarFallback className="text-primary">
-                {receiverInfo.username?.slice(0, 2).toUpperCase() ||
-                  receiverInfo.email?.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            {receiverInfo.avatar_url ? (
+              <img
+                src={receiverInfo.avatar_url}
+                width={35}
+                height={35}
+                className="bg-secondary w-[35px] h-[35px] rounded-full"
+                alt="user avatar"
+              />
+            ) : (
+              <Avatar>
+                <AvatarFallback className="text-primary">
+                  {receiverInfo.username?.slice(0, 2).toUpperCase() ||
+                    receiverInfo.email?.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+            )}
             <div>
               <h2 className="text-lg font-semibold">
                 {receiverInfo.username || "Anonymous"}
