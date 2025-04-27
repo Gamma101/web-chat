@@ -182,7 +182,7 @@ export default function ChatSidebar({ session }: { session: Session | null }) {
             </DropdownMenuContent>
           </DropdownMenu>
           <Button variant="ghost" size="icon" onClick={handleSignOut}>
-            <LogOut className="h-5 w-5" />
+            <LogOut className="h-5 w-5 text-red-400" />
           </Button>
         </div>
       </div>

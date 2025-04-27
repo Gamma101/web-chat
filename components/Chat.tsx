@@ -15,9 +15,9 @@ import EditMessage from "./EditMessage"
 import { Paperclip } from "lucide-react"
 import { v4 as uuidv4 } from "uuid"
 import EmojiPicker, { Theme } from "emoji-picker-react"
-import Image from "next/image"
 import { useTheme } from "next-themes"
 import { MdDelete, MdModeEditOutline } from "react-icons/md"
+import { FaReply } from "react-icons/fa"
 
 interface Message {
   id: number
@@ -27,6 +27,7 @@ interface Message {
   is_edited: boolean
   sender_id: string
   reciever_id: string
+  reply_id: number
 }
 
 interface User {
@@ -52,6 +53,7 @@ export default function Chat({
   const [messageImage, setMessageImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [isEmojiPickerOpen, setIsEmohiPickerOpen] = useState<boolean>(false)
+  const [replyMessage, setReplyMessage] = useState<Message | null>(null)
   const theme = useTheme()
 
   const scrollToBottom = () => {
@@ -121,6 +123,7 @@ export default function Chat({
     if (messageImage) {
       imageUrl = await uploadImage(messageImage)
     }
+    const replyMessageId = replyMessage ? replyMessage.id : null
 
     const { error } = await supabase
       .from("messages")
@@ -130,6 +133,7 @@ export default function Chat({
         is_edited: false,
         sender_id: senderId,
         reciever_id: recieverId,
+        reply_id: replyMessageId,
       })
       .select()
       .single()
@@ -140,6 +144,7 @@ export default function Chat({
     }
     clearImagePreview()
     setMessage("")
+    setReplyMessage(null)
   }
 
   const fetchMessages = async () => {
@@ -160,6 +165,43 @@ export default function Chat({
       setMessages(data)
     }
   }
+  const [replyCache, setReplyCache] = useState<Record<number, Message>>({})
+
+  const fetchReplyMessage = async (id: number) => {
+    if (replyCache[id]) return
+
+    const { data, error } = await supabase
+      .from("messages")
+      .select("*")
+      .eq("id", id)
+      .single()
+
+    if (error) {
+      console.error("Error in getMessageInfoById:", error)
+      return
+    }
+
+    setReplyCache((prev) => ({ ...prev, [id]: data }))
+  }
+
+  // Modify the renderReply function
+  const renderReply = (id: number) => {
+    const reply = replyCache[id]
+    return reply ? (
+      <h1 className="bg-secondary p-2 rounded-xl mb-2 text-primary cursor-pointer hover:bg-secondary/80 transition-colors">
+        {reply.text}
+      </h1>
+    ) : null
+  }
+
+  // Update the useEffect to fetch replies
+  useEffect(() => {
+    messages.forEach((msg) => {
+      if (msg.reply_id && !replyCache[msg.reply_id]) {
+        fetchReplyMessage(msg.reply_id)
+      }
+    })
+  }, [messages])
 
   const deleteMessage = async (messageId: number) => {
     const messageToDelete = messages.find((msg) => msg.id === messageId)
@@ -289,6 +331,7 @@ export default function Chat({
                 />
               ) : (
                 <>
+                  {msg.reply_id && renderReply(msg.reply_id)}
                   <p className="break-words max-w-[300px]">{msg.text}</p>
                   {msg.image_url && (
                     <img src={msg.image_url} className=" rounded-md" />
@@ -300,7 +343,7 @@ export default function Chat({
                     {msg.is_edited && (
                       <p className="text-sm font-medium">edited</p>
                     )}
-                    {msg.sender_id === senderId && (
+                    {msg.sender_id === senderId ? (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <BsThreeDots />
@@ -322,6 +365,10 @@ export default function Chat({
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+                    ) : (
+                      <button onClick={() => setReplyMessage(msg)}>
+                        <FaReply className="text-primary" />
+                      </button>
                     )}
                   </div>
                 </>
@@ -333,7 +380,16 @@ export default function Chat({
       </div>
 
       {/* Message input form */}
-
+      {replyMessage && (
+        <div className="flex flex-row items-ceter justify-between bg-secondary p-5 rounded-t-4xl">
+          <div className="overflow-">
+            <p>{replyMessage.text}</p>
+          </div>
+          <button onClick={() => setReplyMessage(null)}>
+            <IoMdClose size={24} className="text-red-400" />
+          </button>
+        </div>
+      )}
       <form
         onSubmit={sendMessage}
         className="border-t dark:border-neutral-800 p-4 flex items-center justify-center gap-2"
