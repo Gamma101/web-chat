@@ -32,7 +32,6 @@ export default function ChatPage() {
       <div className="">
         <ChatSidebar session={session} />
       </div>
-      <TestDelete />
       <div className="w-full">
         {session && recieverId ? (
           <Chat senderId={session?.user.id} recieverId={recieverId} />
