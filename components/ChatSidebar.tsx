@@ -245,7 +245,7 @@ export default function ChatSidebar({
                 {currentUser?.avatar_url ? (
                   <img
                     src={currentUser?.avatar_url}
-                    className="bg-secondary p-2 m-5 w-[200px] rounded-full"
+                    className="bg-secondary p-2 m-5 w-[200px] h-[200px] rounded-full"
                     alt="user avatar"
                     width={100}
                     height={100}

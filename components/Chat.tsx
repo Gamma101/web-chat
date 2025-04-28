@@ -19,6 +19,7 @@ import { useTheme } from "next-themes"
 import { MdDelete, MdModeEditOutline } from "react-icons/md"
 import { FaReply } from "react-icons/fa"
 import { IoSend } from "react-icons/io5"
+import Link from "next/link"
 interface Message {
   id: number
   created_at: string
@@ -191,7 +192,7 @@ export default function Chat({
   const renderReply = (id: number) => {
     const reply = replyCache[id]
     return reply ? (
-      <h1 className="bg-secondary p-2 rounded-xl mb-2 text-primary cursor-pointer hover:bg-secondary/80 transition-colors">
+      <h1 className="bg-secondary p-2 rounded-lg mb-2 text-primary cursor-pointer hover:bg-secondary/80 transition-colors">
         {reply.text}
       </h1>
     ) : null
@@ -316,7 +317,10 @@ export default function Chat({
       {/* Chat header */}
       <div className="border-b dark:border-neutral-800 p-4 flex items-center gap-3">
         {receiverInfo && (
-          <>
+          <Link
+            className="flex flex-row items-center gap-3"
+            href={`/profile/${receiverInfo.uid}`}
+          >
             {receiverInfo.avatar_url ? (
               <img
                 src={receiverInfo.avatar_url}
@@ -341,7 +345,7 @@ export default function Chat({
                 {receiverInfo.email}
               </p>
             </div>
-          </>
+          </Link>
         )}
       </div>
 
@@ -354,24 +358,25 @@ export default function Chat({
               msg.sender_id === senderId ? "justify-end" : "justify-start"
             }`}
           >
-            {receiverInfo?.uid !== msg.reciever_id &&
-              receiverInfo?.avatar_url && (
-                <img
-                  src={receiverInfo?.avatar_url}
-                  alt="user avatar"
-                  className="w-[35px] h-[35px] mr-2"
-                />
-              )}
-            {receiverInfo?.uid !== msg.reciever_id &&
-              !receiverInfo?.avatar_url && (
-                <Avatar className="mr-2">
-                  <AvatarFallback className="text-primary">
-                    {receiverInfo?.username?.slice(0, 2).toUpperCase() ||
-                      receiverInfo?.email?.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              )}
-
+            <Link href={`/profile/${receiverInfo?.uid}`}>
+              {receiverInfo?.uid !== msg.reciever_id &&
+                receiverInfo?.avatar_url && (
+                  <img
+                    src={receiverInfo?.avatar_url}
+                    alt="user avatar"
+                    className="w-[35px] h-[35px] mr-2"
+                  />
+                )}
+              {receiverInfo?.uid !== msg.reciever_id &&
+                !receiverInfo?.avatar_url && (
+                  <Avatar className="mr-2">
+                    <AvatarFallback className="text-primary">
+                      {receiverInfo?.username?.slice(0, 2).toUpperCase() ||
+                        receiverInfo?.email?.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+            </Link>
             <div
               className={`max-w-[70%] rounded-lg p-3 ${
                 msg.sender_id === senderId
@@ -431,25 +436,28 @@ export default function Chat({
                 </>
               )}
             </div>
-            {receiverInfo?.uid === msg.reciever_id &&
-              currentUser?.avatar_url && (
-                <img
-                  src={currentUser?.avatar_url}
-                  alt="user avatar"
-                  className="w-[35px] rounded-full h-[35px] ml-2"
-                />
-              )}
-            {receiverInfo?.uid === msg.reciever_id &&
-              !currentUser?.avatar_url && (
-                <Avatar className="ml-2 w-[35px] h-[35px]">
-                  <AvatarFallback className="text-primary">
-                    {currentUser?.username?.slice(0, 2).toUpperCase() ||
-                      currentUser?.email?.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-              )}
+            <Link href={`/profile/${currentUser?.uid}`}>
+              {receiverInfo?.uid === msg.reciever_id &&
+                currentUser?.avatar_url && (
+                  <img
+                    src={currentUser?.avatar_url}
+                    alt="user avatar"
+                    className="w-[35px] rounded-full h-[35px] ml-2"
+                  />
+                )}
+              {receiverInfo?.uid === msg.reciever_id &&
+                !currentUser?.avatar_url && (
+                  <Avatar className="ml-2 w-[35px] h-[35px]">
+                    <AvatarFallback className="text-primary">
+                      {currentUser?.username?.slice(0, 2).toUpperCase() ||
+                        currentUser?.email?.slice(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+            </Link>
           </div>
         ))}
+
         <div ref={messagesEndRef} />
       </div>
 
@@ -471,6 +479,7 @@ export default function Chat({
         <label htmlFor="file-upload" className="cursor-pointer">
           <Button
             variant={"secondary"}
+            type="button"
             onClick={() => document.getElementById("file-upload")?.click()}
           >
             <Paperclip className="h-5 w-5" />
