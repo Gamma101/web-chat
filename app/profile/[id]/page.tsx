@@ -6,28 +6,52 @@ import { Session } from "@supabase/supabase-js"
 import { useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
+interface Message {
+  id: string
+  sender_id: string
+  reciever_id: string
+  message: string
+  created_at: string
+  image_url: string
+}
+
 export default function Page() {
-  const [currentUserSession, setCurrentUserSession] = useState<Session | null>(
-    null
-  )
+  const [profileSession, setProfileSession] = useState<Session | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [isAvatarLoading, setIsAvatarLoading] = useState(false)
+  const [messagesWithImages, setMessagesWithImages] = useState<Message[] | []>(
+    []
+  )
   const params = useParams()
 
   const fetchMessagesWithImages = async () => {
+    if (!session?.user?.id || !params.id) return
+
     const { data, error } = await supabase
       .from("messages")
       .select("*")
       .or(
-        `and(sender_id.eq.${currentUserSession?.user.id},reciever_id.eq.${session?.user?.id}),and(sender_id.eq.${currentUserSession?.user.id},reciever_id.eq.${params.id})`
+        `and(sender_id.eq.${session.user.id},reciever_id.eq.${params.id}),and(sender_id.eq.${params.id},reciever_id.eq.${session.user.id})`
       )
+      .not("image_url", "eq", "") // Check for non-empty strings
+      .not("image_url", "is", null) // Check for non-null values
       .order("created_at", { ascending: true })
 
+    if (error) {
+      console.error("Error fetching messages with images:", error)
+      return
+    }
+
     console.log(data)
+    setMessagesWithImages(data)
   }
 
-  const getCurrentUserSession = async () => {
-    const { data, error } = await supabase.auth.getSession()
+  const getProfileUserSession = async () => {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("uid", params.id)
+      .single()
 
     if (error) {
       console.error("Error fetching current session", error)
@@ -35,7 +59,8 @@ export default function Page() {
     }
 
     if (data) {
-      setCurrentUserSession(data?.session)
+      setProfileSession(data.uid)
+      console.log(data)
     }
   }
 
@@ -52,12 +77,12 @@ export default function Page() {
     }
 
     fetchSession()
-    getCurrentUserSession()
+    getProfileUserSession()
   }, [])
 
   useEffect(() => {
     fetchMessagesWithImages()
-  }, [])
+  }, [profileSession, session])
 
   return (
     <div className="flex flex-row">
@@ -69,7 +94,7 @@ export default function Page() {
         />
       </div>
       <div className="w-full flex pt-10 justify-center">
-        <Profile userId={params.id as string} />
+        <Profile messages={messagesWithImages} userId={params.id as string} />
       </div>
     </div>
   )

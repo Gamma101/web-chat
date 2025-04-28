@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html suppressHydrationWarning lang="en">
-      <body className={`${jetBrainsMono.variable} antialiased`}>
+      <body className={`${jetBrainsMono.variable} antialiased overflow-hidden`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

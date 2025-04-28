@@ -1,6 +1,10 @@
 import { supabase } from "@/lib/supabase-client"
 import React, { useEffect, useState } from "react"
 import { Avatar, AvatarFallback } from "./ui/avatar"
+import ProfileImages from "./ProfileImages"
+import { Button } from "./ui/button"
+import { MdMail } from "react-icons/md"
+import Link from "next/link"
 
 interface User {
   id: string
@@ -10,7 +14,22 @@ interface User {
   avatar_url: string | null
 }
 
-export default function Profile({ userId }: { userId: string }) {
+interface Message {
+  id: string
+  sender_id: string
+  reciever_id: string
+  message: string
+  created_at: string
+  image_url: string
+}
+
+export default function Profile({
+  userId,
+  messages,
+}: {
+  userId: string
+  messages: Message[]
+}) {
   const [user, setUser] = useState<User | null>(null)
   const fetchUser = async () => {
     const { data, error } = await supabase
@@ -20,7 +39,7 @@ export default function Profile({ userId }: { userId: string }) {
       .single()
 
     if (error) {
-      console.log("Error in ProfileFetch,", error)
+      console.error("Error in ProfileFetch,", error)
       return
     }
 
@@ -34,7 +53,7 @@ export default function Profile({ userId }: { userId: string }) {
   }, [])
 
   return (
-    <div className="flex flex-col items-center bg-secondary px-10 pt-5 rounded-xl w-[80%]">
+    <div className="flex flex-col items-center bg-secondary px-10 pt-5 rounded-xl w-[80%] overflow-auto h-screen">
       {user?.avatar_url ? (
         <img
           className="w-[250px] h-[250px] rounded-full"
@@ -55,6 +74,14 @@ export default function Profile({ userId }: { userId: string }) {
       <h1 className="text-3xl">
         Email: <span className="text-primary">{user?.email}</span>
       </h1>
+      <Link href={`/chat/?user=${user?.uid}`}>
+        <Button className="mt-5">
+          <MdMail className="text-2xl" />
+          <span className="ml-2">Send Message</span>
+        </Button>
+      </Link>
+      <h1 className="text-3xl my-5">Chat Images</h1>
+      <ProfileImages messages={messages} />
     </div>
   )
 }
