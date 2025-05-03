@@ -152,9 +152,12 @@ export default function ChatSidebar({
 
   return (
     <div className="w-[300px] h-screen border-r dark:border-neutral-800 p-4 flex flex-col">
-      <h2 className="text-3xl font-semibold mb-4 text-center">
-        <span className="text-primary">Web</span>-chat
-      </h2>
+      <Link href={"/"}>
+        <h2 className="text-3xl font-semibold mb-4 text-center">
+          <span className="text-primary">Web</span>-chat
+        </h2>
+      </Link>
+
       <div className="flex flex-row items-center justify-center gap-4">
         <Input
           placeholder="Search for friends"

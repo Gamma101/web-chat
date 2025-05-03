@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+![web-chat logo image](./public/logo.png)
 
-## Getting Started
+### **web-chat** - is a simple chat app, where you can talk to your friends
 
-First, run the development server:
+### Chat
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+![image with 2 phone screens showing the app](./public/Example_1.png)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Login form
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+![image with 2 phone screens showing the app](./public/Example_2.png)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Chat Images & User Profile
 
-## Learn More
+![image with 2 phone screens showing the app](./public/Example_3.png)
 
-To learn more about Next.js, take a look at the following resources:
+## Functionality
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Create, delete, edit messages
+- Reply on message
+- Upload images
+- Avatars & changing them
+- Search users
+- Dark theme
+- Accounts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Technologies Used
 
-## Deploy on Vercel
+- TypeScript
+- React
+- shadcn
+- Next.js
+- Tailwind
+- Supabase(auth too)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## How to Try It
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Clone Reposiroty
+
+   ```bash
+   git clone https://github.com/Gamma101/web-chat.git
+   cd web-chat
+   ```
+
+2. Install dependencies
+
+   ```bash
+   git clone
+   ```
+
+   ```bash
+   npm install
+   ```
+
+3. Start the app
+
+   ```bash
+    npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
