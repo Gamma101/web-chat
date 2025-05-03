@@ -4,15 +4,19 @@
 
 ### Chat
 
-![image with 2 phone screens showing the app](./public/Example_1.png)
+![chat](./public/Example_1.png)
 
 ### Login form
 
-![image with 2 phone screens showing the app](./public/Example_2.png)
+![login page](./public/Example_2.png)
 
 ### Chat Images & User Profile
 
-![image with 2 phone screens showing the app](./public/Example_3.png)
+![user profile](./public/Example_3.png)
+
+### Settings
+
+![website settings image](./public/Example_4.png)
 
 ## Functionality
 
